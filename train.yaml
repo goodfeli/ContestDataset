@@ -1,0 +1,3 @@
+!obj:contest_dataset.ContestDataset {
+    which_set: 'train'
+}
