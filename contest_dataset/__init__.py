@@ -63,6 +63,11 @@ class ContestDataset(DenseDesignMatrix):
         X = np.asarray(X_list)
         y = np.asarray(y_list)
 
+        one_hot = np.zeros((y.shape[0],7),dtype='float32')
+        for i in xrange(y.shape[0]):
+            one_hot[i,y[i]] = 1.
+        y = one_hot
+
         view_converter = DefaultViewConverter(shape=[48,48,1])
 
         super(ContestDataset, self).__init__(X=X, y=y, view_converter=view_converter)
