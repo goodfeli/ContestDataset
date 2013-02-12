@@ -21,7 +21,10 @@ class ContestDataset(DenseDesignMatrix):
     """
 
     def __init__(self, which_set,
-            base_path = '/data/lisatmp/ift6266h13/ContestDataset'):
+            base_path = '/data/lisatmp/ift6266h13/ContestDataset',
+            start = None,
+            stop = None,
+            preprocessor = None):
         """
         which_set: A string specifying which portion of the dataset
             to load. Valid values are 'train' or 'public_test'
@@ -32,6 +35,12 @@ class ContestDataset(DenseDesignMatrix):
                    Kaggle and set base_path to the directory containing
                    them.
         """
+
+        self.test_args = locals()
+        self.test_args['which_set'] = 'public_test'
+        del self.test_args['start']
+        del self.test_args['stop']
+        del self.test_args['self']
 
         files = {'train': 'train.csv', 'public_test' : 'test.csv'}
 
@@ -74,9 +83,28 @@ class ContestDataset(DenseDesignMatrix):
         else:
             y = None
 
+
+        if start is not None:
+            assert which_set != 'test'
+            assert isinstance(start, int)
+            assert isinstance(stop, int)
+            assert start >= 0
+            assert start < stop
+            assert stop <= X.shape[0]
+            X = X[start:stop, :]
+            if y is not None:
+                y = y[start:stop, :]
+
         view_converter = DefaultViewConverter(shape=[48,48,1])
 
         super(ContestDataset, self).__init__(X=X, y=y, view_converter=view_converter)
 
+        if preprocessor:
+            preprocessor.apply(self)
+
     def adjust_for_viewer(self, X):
         return (X - 127.5) / 127.5
+
+    def get_test_set(self):
+        return ContestDataset(**self.test_args)
+
