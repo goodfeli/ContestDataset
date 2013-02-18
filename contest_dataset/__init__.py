@@ -24,7 +24,9 @@ class ContestDataset(DenseDesignMatrix):
             base_path = '/data/lisatmp/ift6266h13/ContestDataset',
             start = None,
             stop = None,
-            preprocessor = None):
+            preprocessor = None,
+            fit_preprocessor = False,
+            fit_test_preprocessor = False):
         """
         which_set: A string specifying which portion of the dataset
             to load. Valid values are 'train' or 'public_test'
@@ -34,10 +36,15 @@ class ContestDataset(DenseDesignMatrix):
                    at home, you should download the .csv files from
                    Kaggle and set base_path to the directory containing
                    them.
+        fit_preprocessor: True if the preprocessor is allowed to fit the
+                   data.
+        fit_test_preprocessor: If we construct a test set based on this
+                    dataset, should it be allowed to fit the test set?
         """
 
         self.test_args = locals()
         self.test_args['which_set'] = 'public_test'
+        self.test_args['fit_preprocessor'] = fit_test_preprocessor
         del self.test_args['start']
         del self.test_args['stop']
         del self.test_args['self']
@@ -83,7 +90,6 @@ class ContestDataset(DenseDesignMatrix):
         else:
             y = None
 
-
         if start is not None:
             assert which_set != 'test'
             assert isinstance(start, int)
@@ -100,7 +106,7 @@ class ContestDataset(DenseDesignMatrix):
         super(ContestDataset, self).__init__(X=X, y=y, view_converter=view_converter)
 
         if preprocessor:
-            preprocessor.apply(self)
+            preprocessor.apply(self, can_fit=fit_preprocessor)
 
     def adjust_for_viewer(self, X):
         return (X - 127.5) / 127.5
