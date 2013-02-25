@@ -26,6 +26,7 @@ class ContestDataset(DenseDesignMatrix):
             stop = None,
             preprocessor = None,
             fit_preprocessor = False,
+            axes = ('b', 0, 1, 'c'),
             fit_test_preprocessor = False):
         """
         which_set: A string specifying which portion of the dataset
@@ -101,7 +102,7 @@ class ContestDataset(DenseDesignMatrix):
             if y is not None:
                 y = y[start:stop, :]
 
-        view_converter = DefaultViewConverter(shape=[48,48,1])
+        view_converter = DefaultViewConverter(shape=[48,48,1], axes=axes)
 
         super(ContestDataset, self).__init__(X=X, y=y, view_converter=view_converter)
 
