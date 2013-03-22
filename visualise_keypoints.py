@@ -24,15 +24,22 @@ def drawKeypointsOnImage(img, keyPoints):
     leftFill = (0, 255, 0)
     rightFill = (255, 0, 0)
 
+    left_eye_center_x = 0
+    left_eye_inner_corner_x = 4
+    left_eye_outer_corner_x = 6
+    left_eyebrow_inner_end_x = 12
+    left_eyebrow_outer_end_x = 14
+    mouth_left_corner_x = 22
+
     for i in range(len(keyPoints) / 2):
         if keyPoints[i * 2] is not None and keyPoints[i * 2 + 1] is not None:
-            if i * 2 in [keypoints.KeyPointIndex.left_eye_center_x,
-                         keypoints.KeyPointIndex.left_eye_inner_corner_x,
-                         keypoints.KeyPointIndex.left_eye_outer_corner_x,
-                         keypoints.KeyPointIndex.left_eyebrow_inner_end_x,
-                         keypoints.KeyPointIndex.left_eyebrow_outer_end_x,
-                         keypoints.KeyPointIndex.mouth_left_corner_x,
-                         keypoints.KeyPointIndex.left_eye_center_x]:
+            if i * 2 in [left_eye_center_x,
+                         left_eye_inner_corner_x,
+                         left_eye_outer_corner_x,
+                         left_eyebrow_inner_end_x,
+                         left_eyebrow_outer_end_x,
+                         mouth_left_corner_x,
+                         left_eye_center_x]:
                 fill = leftFill
             else:
                 fill = rightFill
@@ -60,8 +67,9 @@ _, model_path, out_path = sys.argv
 
 if os.path.exists(out_path):
     usage()
-    print out_path+" already exists, and I don't want to overwrite anything just to be safe."
+    print out_path + " already exists, and I don't want to overwrite anything just to be safe."
     quit(-1)
+os.makedirs(out_path)
 
 from pylearn2.utils import serial
 try:
