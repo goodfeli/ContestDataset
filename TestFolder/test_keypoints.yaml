@@ -3,10 +3,10 @@
 
     # Our dataset is the contest dataset of IFT6266
     dataset: &train !obj:keypoints_dataset.FacialKeypointDataset {
-        #base_path: '/u/archambv/Documents/GitHubRepo/ContestDataset/ContestDataset/keypoints_dataset/',
+        base_path: '/data/lisa/exp/archambv/KaggleFiles/',
         which_set: 'train',
-        #start: 0,
-        #stop: 3500 # We select only the first 3500 exemples as training set
+        start: 0,
+        stop: 6500 # We select only the first 6500 exemples as training set
     },
 
     # Our model will simply be a MLP with one Tanh layer
@@ -29,32 +29,30 @@
     # We use SGD as our training algorithm
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
         batch_size: 100,
-        learning_rate: 0.01,
+        learning_rate: 0.001,
         # What we monitor
         monitoring_dataset:
             {
                 'train' : *train ,
                 'valid' : !obj:keypoints_dataset.FacialKeypointDataset {
-                              #base_path: '/u/archambv/Documents/GitHubRepo/ContestDataset/ContestDataset/keypoints_dataset/',
+                              base_path: '/data/lisa/exp/archambv/KaggleFiles/',
                               which_set: 'train',
-                              start: 3500, # Keep the last 500 exemples as validation set
-                              stop: 4000
+                              start: 6500, # Keep the last 500 exemples as validation set
+                              stop: 7049
                           }
                 # We don't have labels for the public test set
             },
         # The cost function is
-        cost: !obj:pylearn2.costs.cost.MethodCost {
-                method: 'cost_from_X',
-                supervised: 1
+        cost: !obj:pylearn2.costs.mlp.missing_target_cost.MissingTargetCost {
         },
         # The termination criteria
         termination_criterion: !obj:pylearn2.termination_criteria.MonitorBased {
-            channel_name: "valid_y_misclass"
+            channel_name: "valid_objective"
         }
     },
     extensions: [
         !obj:pylearn2.train_extensions.best_params.MonitorBasedSaveBest {
-             channel_name: 'valid_y_misclass',
+             channel_name: 'valid_objective',
              save_path: "test_results.pkl"
         },
     ]
