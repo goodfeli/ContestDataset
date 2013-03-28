@@ -80,7 +80,7 @@ class FacialKeypointDataset(DenseDesignMatrix):
                 X_row_str = row[numberOfKeyPoints]  # The image is at the last position
                 y_list.append(y_float)
             else:
-                X_row_str, = row
+                _, X_row_str = row
             X_row_strs = X_row_str.split(' ')
             X_row = map(lambda x: float(x), X_row_strs)
             X_list.append(X_row)

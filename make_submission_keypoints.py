@@ -4,6 +4,7 @@ __credits__ = ['Ian Goodfellow', 'Vincent Archambault-Bouffard']
 
 import sys
 import numpy as np
+import csv
 from theano import function
 
 def usage():
@@ -59,8 +60,8 @@ f = function([X], Y)
 
 y = []
 
-for i in xrange(dataset.X.shape[0] / batch_size):
-    x_arg = dataset.X[i*batch_size:(i+1)*batch_size,:]
+for imgIdx in xrange(dataset.X.shape[0] / batch_size):
+    x_arg = dataset.X[imgIdx*batch_size:(imgIdx+1)*batch_size,:]
     if X.ndim > 2:
         x_arg = dataset.get_topological_view(x_arg)
     y.append(f(x_arg.astype(X.dtype)))
@@ -70,10 +71,27 @@ assert y.shape[0] == dataset.X.shape[0]
 # discard any zero-padding that was used to give the batches uniform size
 y = y[:m]
 
-out = open(out_path, 'w')
-for i in xrange(y.shape[0]):
-    outValue = ','.join([str(x) for x in y[i]])
-    out.write('{0}\n'.format(outValue))
-out.close()
+submission = []
+with open('submissionFileFormat.csv', 'rb') as cvsTemplate:
+    reader = csv.reader(cvsTemplate)
+    for row in reader:
+        submission.append(row)
+
+idx = 1
+for row in submission:
+    imgIdx = row[1] - 1
+    keypointIndex = row[2]
 
 
+for imgIdx in range(y.shape[0]):
+    for j in range(30):
+        if submission[idx][1] != imgIdx: # We need to go to the next image
+            break
+        if y[imgIdx][j] != -1:
+            submission[idx].append(y[imgIdx][j])
+            idx += 1
+
+with open(out_path, 'w') as cvsTemplate:
+    writer = csv.writer(cvsTemplate)
+    for row in submission:
+        writer.writerow(row)
