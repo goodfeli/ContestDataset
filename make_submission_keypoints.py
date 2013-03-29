@@ -1,11 +1,11 @@
 __author__ = 'Vincent Archambault-Bouffard'
 __credits__ = ['Ian Goodfellow', 'Vincent Archambault-Bouffard']
 
-
 import sys
 import numpy as np
 import csv
 from theano import function
+
 
 def usage():
     print """usage: python make_submission.py model.pkl submission.csv
@@ -22,12 +22,14 @@ if len(sys.argv) != 3:
 _, model_path, out_path = sys.argv
 
 import os
+
 if os.path.exists(out_path):
     usage()
-    print out_path+" already exists, and I don't want to overwrite anything just to be safe."
+    print out_path + " already exists, and I don't want to overwrite anything just to be safe."
     quit(-1)
 
 from pylearn2.utils import serial
+
 try:
     model = serial.load(model_path)
 except Exception, e:
@@ -53,7 +55,6 @@ if extra > 0:
                                                     dtype=dataset.X.dtype)), axis=0)
 assert dataset.X.shape[0] % batch_size == 0
 
-
 X = model.get_input_space().make_batch_theano()
 Y = model.fprop(X)
 f = function([X], Y)
@@ -61,7 +62,7 @@ f = function([X], Y)
 y = []
 
 for imgIdx in xrange(dataset.X.shape[0] / batch_size):
-    x_arg = dataset.X[imgIdx*batch_size:(imgIdx+1)*batch_size,:]
+    x_arg = dataset.X[imgIdx * batch_size:(imgIdx + 1) * batch_size, :]
     if X.ndim > 2:
         x_arg = dataset.get_topological_view(x_arg)
     y.append(f(x_arg.astype(X.dtype)))
