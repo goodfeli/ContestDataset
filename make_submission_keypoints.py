@@ -110,7 +110,7 @@ mapping = dict(zip(['left_eye_center_x',
                     'mouth_center_bottom_lip_y'], range(30)))
 
 for row in submission:
-    imgIdx = row[1] - 1
+    imgIdx = int(row[1]) - 1
     keypointName = row[2]
     keyPointIndex = mapping[keypointName]
     row.append(y[imgIdx, keyPointIndex])
