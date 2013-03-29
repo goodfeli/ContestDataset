@@ -78,19 +78,42 @@ with open('submissionFileFormat.csv', 'rb') as cvsTemplate:
     for row in reader:
         submission.append(row)
 
-idx = 1
+mapping = dict(zip(['left_eye_center_x',
+                    'left_eye_center_y',
+                    'right_eye_center_x',
+                    'right_eye_center_y',
+                    'left_eye_inner_corner_x',
+                    'left_eye_inner_corner_y',
+                    'left_eye_outer_corner_x',
+                    'left_eye_outer_corner_y',
+                    'right_eye_inner_corner_x',
+                    'right_eye_inner_corner_y',
+                    'right_eye_outer_corner_x',
+                    'right_eye_outer_corner_y',
+                    'left_eyebrow_inner_end_x',
+                    'left_eyebrow_inner_end_y',
+                    'left_eyebrow_outer_end_x',
+                    'left_eyebrow_outer_end_y',
+                    'right_eyebrow_inner_end_x',
+                    'right_eyebrow_inner_end_y',
+                    'right_eyebrow_outer_end_x',
+                    'right_eyebrow_outer_end_y',
+                    'nose_tip_x',
+                    'nose_tip_y',
+                    'mouth_left_corner_x',
+                    'mouth_left_corner_y',
+                    'mouth_right_corner_x',
+                    'mouth_right_corner_y',
+                    'mouth_center_top_lip_x',
+                    'mouth_center_top_lip_y',
+                    'mouth_center_bottom_lip_x',
+                    'mouth_center_bottom_lip_y'], range(30)))
+
 for row in submission:
     imgIdx = row[1] - 1
-    keypointIndex = row[2]
-
-
-for imgIdx in range(y.shape[0]):
-    for j in range(30):
-        if submission[idx][1] != imgIdx: # We need to go to the next image
-            break
-        if y[imgIdx][j] != -1:
-            submission[idx].append(y[imgIdx][j])
-            idx += 1
+    keypointName = row[2]
+    keyPointIndex = mapping[keypointName]
+    row.append(y[imgIdx, keyPointIndex])
 
 with open(out_path, 'w') as cvsTemplate:
     writer = csv.writer(cvsTemplate)
