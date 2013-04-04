@@ -87,9 +87,9 @@ class FacialKeypointDataset(DenseDesignMatrix):
                 X_row = map(lambda x: float(x), X_row_strs)
                 X_list.append(X_row)
 
-            X = np.asarray(X_list)
+            X = np.asarray(X_list, dtype='float32')
             if which_set == 'train':
-                y = np.asarray(y_list)
+                y = np.asarray(y_list, dtype='float32')
             else:
                 y = None
 
@@ -104,10 +104,9 @@ class FacialKeypointDataset(DenseDesignMatrix):
                 if y is not None:
                     y = y[start:stop, :]
 
-            view_converter = DefaultViewConverter(shape=[96, 96, 1], axes=axes)
-
             saveForNumpy(base_path, which_set, X, y)
 
+        view_converter = DefaultViewConverter(shape=[96, 96, 1], axes=axes)
         super(FacialKeypointDataset, self).__init__(X=X, y=y, view_converter=view_converter)
 
         if preprocessor:
@@ -120,7 +119,7 @@ class FacialKeypointDataset(DenseDesignMatrix):
         return FacialKeypointDataset(**self.test_args)
 
 
-def loadFromNumpy(base_path, which_set):
+def fileNames(which_set):
     if which_set == "train":
         X_file = "keypoints_train_X.npy"
         Y_file = "keypoints_train_Y.npy"
@@ -129,11 +128,20 @@ def loadFromNumpy(base_path, which_set):
         Y_file = None
     else:
         raise ValueError("Unrecognized dataset name: " + which_set)
+    return X_file, Y_file
+
+
+def loadFromNumpy(base_path, which_set):
+    X_file, Y_file = fileNames(which_set)
 
     path = os.path.join(base_path, X_file)
+    if not os.path.exists(path):
+        return None, None
     X = np.load(path)
 
     if Y_file is not None:
+        if not os.path.exists(path):
+            return None, None
         path = os.path.join(base_path, Y_file)
         Y = np.load(path)
     else:
@@ -143,14 +151,7 @@ def loadFromNumpy(base_path, which_set):
 
 
 def saveForNumpy(base_path, which_set, X, Y):
-    if which_set == "train":
-        X_file = "keypoints_train_X.npy"
-        Y_file = "keypoints_train_Y.npy"
-    elif which_set == "public_test":
-        X_file = "keypoints_test.npy"
-        Y_file = None
-    else:
-        raise ValueError("Unrecognized dataset name: " + which_set)
+    X_file, Y_file = fileNames(which_set)
 
     path = os.path.join(base_path, X_file)
     np.save(path, X)
