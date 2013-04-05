@@ -104,6 +104,7 @@ class FacialKeypointDataset(DenseDesignMatrix):
                 if y is not None:
                     y = y[start:stop, :]
 
+            print "Before saveForNumpy", base_path, which_set
             saveForNumpy(base_path, which_set, X, y)
 
         view_converter = DefaultViewConverter(shape=[96, 96, 1], axes=axes)
@@ -124,7 +125,7 @@ def fileNames(which_set):
         X_file = "keypoints_train_X.npy"
         Y_file = "keypoints_train_Y.npy"
     elif which_set == "public_test":
-        X_file = None # No need to use numpy for the test set
+        X_file = None  # No need to use numpy for the test set
         Y_file = None
     else:
         raise ValueError("Unrecognized dataset name: " + which_set)
