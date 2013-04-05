@@ -51,6 +51,7 @@ class FacialKeypointDataset(DenseDesignMatrix):
         self.test_args = locals()
         self.test_args['which_set'] = 'public_test'
         self.test_args['fit_preprocessor'] = fit_test_preprocessor
+        self.test_args['base_path'] = base_path
         del self.test_args['start']
         del self.test_args['stop']
         del self.test_args['self']
