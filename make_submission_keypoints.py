@@ -39,9 +39,7 @@ except Exception, e:
 
 from pylearn2.config import yaml_parse
 
-print "Bla"
 dataset = yaml_parse.load(model.dataset_yaml_src)
-print "Blue"
 dataset = dataset.get_test_set()
 
 # use smallish batches to avoid running out of memory
