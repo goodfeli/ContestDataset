@@ -142,9 +142,9 @@ def loadFromNumpy(base_path, which_set):
     X = np.load(path)
 
     if Y_file is not None:
+        path = os.path.join(base_path, Y_file)
         if not os.path.exists(path):
             return None, None
-        path = os.path.join(base_path, Y_file)
         Y = np.load(path)
     else:
         Y = None
