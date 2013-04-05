@@ -55,55 +55,58 @@ class FacialKeypointDataset(DenseDesignMatrix):
         del self.test_args['stop']
         del self.test_args['self']
 
-        files = {'train': 'keypoints_train.csv', 'public_test': 'keypoints_test.csv'}
+        X, y = loadFromNumpy(base_path, which_set)
+        if X is None or (y is None and which_set == "train"):
+            files = {'train': 'keypoints_train.csv', 'public_test': 'keypoints_test.csv'}
 
-        try:
-            filename = files[which_set]
-        except KeyError:
-            raise ValueError("Unrecognized dataset name: " + which_set)
+            try:
+                filename = files[which_set]
+            except KeyError:
+                raise ValueError("Unrecognized dataset name: " + which_set)
 
-        path = os.path.join(base_path, filename)
+            path = os.path.join(base_path, filename)
 
-        csv_file = open(path, 'r')
+            csv_file = open(path, 'r')
 
-        reader = csv.reader(csv_file)
+            reader = csv.reader(csv_file)
 
-        # Discard header
-        row = reader.next()
+            # Discard header
+            row = reader.next()
 
-        y_list = []
-        X_list = []
+            y_list = []
+            X_list = []
 
-        for row in reader:
+            for row in reader:
+                if which_set == 'train':
+                    y_float = readKeyPoints(row)
+                    X_row_str = row[numberOfKeyPoints]  # The image is at the last position
+                    y_list.append(y_float)
+                else:
+                    _, X_row_str = row
+                X_row_strs = X_row_str.split(' ')
+                X_row = map(lambda x: float(x), X_row_strs)
+                X_list.append(X_row)
+
+            X = np.asarray(X_list, dtype='float32')
             if which_set == 'train':
-                y_float = readKeyPoints(row)
-                X_row_str = row[numberOfKeyPoints]  # The image is at the last position
-                y_list.append(y_float)
+                y = np.asarray(y_list, dtype='float32')
             else:
-                _, X_row_str = row
-            X_row_strs = X_row_str.split(' ')
-            X_row = map(lambda x: float(x), X_row_strs)
-            X_list.append(X_row)
+                y = None
 
-        X = np.asarray(X_list)
-        if which_set == 'train':
-            y = np.asarray(y_list)
-        else:
-            y = None
+            if start is not None:
+                assert which_set != 'public_test'
+                assert isinstance(start, int)
+                assert isinstance(stop, int)
+                assert start >= 0
+                assert start < stop
+                assert stop <= X.shape[0]
+                X = X[start:stop, :]
+                if y is not None:
+                    y = y[start:stop, :]
 
-        if start is not None:
-            assert which_set != 'public_test'
-            assert isinstance(start, int)
-            assert isinstance(stop, int)
-            assert start >= 0
-            assert start < stop
-            assert stop <= X.shape[0]
-            X = X[start:stop, :]
-            if y is not None:
-                y = y[start:stop, :]
+            saveForNumpy(base_path, which_set, X, y)
 
         view_converter = DefaultViewConverter(shape=[96, 96, 1], axes=axes)
-
         super(FacialKeypointDataset, self).__init__(X=X, y=y, view_converter=view_converter)
 
         if preprocessor:
@@ -114,6 +117,52 @@ class FacialKeypointDataset(DenseDesignMatrix):
 
     def get_test_set(self):
         return FacialKeypointDataset(**self.test_args)
+
+
+def fileNames(which_set):
+    if which_set == "train":
+        X_file = "keypoints_train_X.npy"
+        Y_file = "keypoints_train_Y.npy"
+    elif which_set == "public_test":
+        X_file = "keypoints_test_X.npy"
+        Y_file = None
+    else:
+        raise ValueError("Unrecognized dataset name: " + which_set)
+    return X_file, Y_file
+
+
+def loadFromNumpy(base_path, which_set):
+    X_file, Y_file = fileNames(which_set)
+    if X_file is None:
+        return None, None
+
+    path = os.path.join(base_path, X_file)
+    if not os.path.exists(path):
+        return None, None
+    X = np.load(path)
+
+    if Y_file is not None:
+        path = os.path.join(base_path, Y_file)
+        if not os.path.exists(path):
+            return None, None
+        Y = np.load(path)
+    else:
+        Y = None
+
+    return X, Y
+
+
+def saveForNumpy(base_path, which_set, X, Y):
+    X_file, Y_file = fileNames(which_set)
+    if X_file is None:
+        return
+
+    path = os.path.join(base_path, X_file)
+    np.save(path, X)
+
+    if Y_file is not None:
+        path = os.path.join(base_path, Y_file)
+        np.save(path, Y)
 
 
 def readKeyPoints(row):
