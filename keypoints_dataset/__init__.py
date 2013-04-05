@@ -124,7 +124,7 @@ def fileNames(which_set):
         X_file = "keypoints_train_X.npy"
         Y_file = "keypoints_train_Y.npy"
     elif which_set == "public_test":
-        X_file = "keypoints_test.npy"
+        X_file = None # No need to use numpy for the test set
         Y_file = None
     else:
         raise ValueError("Unrecognized dataset name: " + which_set)
@@ -133,6 +133,8 @@ def fileNames(which_set):
 
 def loadFromNumpy(base_path, which_set):
     X_file, Y_file = fileNames(which_set)
+    if X_file is None:
+        return None, None
 
     path = os.path.join(base_path, X_file)
     if not os.path.exists(path):
@@ -152,6 +154,8 @@ def loadFromNumpy(base_path, which_set):
 
 def saveForNumpy(base_path, which_set, X, Y):
     X_file, Y_file = fileNames(which_set)
+    if X_file is None:
+        return
 
     path = os.path.join(base_path, X_file)
     np.save(path, X)
