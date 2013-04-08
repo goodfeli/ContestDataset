@@ -93,18 +93,18 @@ class FacialKeypointDataset(DenseDesignMatrix):
             else:
                 y = None
 
-            if start is not None:
-                assert which_set != 'public_test'
-                assert isinstance(start, int)
-                assert isinstance(stop, int)
-                assert start >= 0
-                assert start < stop
-                assert stop <= X.shape[0]
-                X = X[start:stop, :]
-                if y is not None:
-                    y = y[start:stop, :]
-
             saveForNumpy(base_path, which_set, X, y)
+
+        if start is not None:
+            assert which_set != 'public_test'
+            assert isinstance(start, int)
+            assert isinstance(stop, int)
+            assert start >= 0
+            assert start < stop
+            assert stop <= X.shape[0]
+            X = X[start:stop, :]
+            if y is not None:
+                y = y[start:stop, :]
 
         view_converter = DefaultViewConverter(shape=[96, 96, 1], axes=axes)
         super(FacialKeypointDataset, self).__init__(X=X, y=y, view_converter=view_converter)
