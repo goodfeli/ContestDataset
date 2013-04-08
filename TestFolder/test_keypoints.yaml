@@ -3,7 +3,7 @@
 
     # Our dataset is the contest dataset of IFT6266
     dataset: &train !obj:keypoints_dataset.FacialKeypointDataset {
-        #base_path: '/data/lisa/exp/archambv/KaggleFiles/',
+        base_path: '/data/lisa/exp/archambv/KaggleFiles/',
         which_set: 'train',
         start: 0,
         stop: 6500 # We select only the first 6500 exemples as training set
@@ -14,7 +14,7 @@
         layers: [
                  !obj:pylearn2.models.mlp.Tanh {
                      layer_name: 'h0',
-                     dim: 1000,
+                     dim: 500,
                      sparse_init: 15
                  },
                  !obj:pylearn2.models.mlp.Linear {
@@ -35,7 +35,7 @@
             {
                 'train' : *train ,
                 'valid' : !obj:keypoints_dataset.FacialKeypointDataset {
-                              #base_path: '/data/lisa/exp/archambv/KaggleFiles/',
+                              base_path: '/data/lisa/exp/archambv/KaggleFiles/',
                               which_set: 'train',
                               start: 6500, # Keep the last 500 exemples as validation set
                               stop: 7049
